@@ -2,32 +2,41 @@ using UnityEngine;
 
 public class PlayerAbilities : MonoBehaviour
 {
-    public GameObject abilityPrefab; // Para magias que criam algo (ex: explosão)
-    public Transform abilitySpawnPoint; // Ponto de origem da magia (ex: frente do player)
+    public Transform firePoint; // ponto de onde o projétil sai (pode ser na frente do player)
+    public GameObject[] abilitiesPrefabs = new GameObject[4]; // QWER
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            CastImmediateAbility();
-        }
+        if (Input.GetKeyDown(KeyCode.Q)) UseAbility(0);
+        if (Input.GetKeyDown(KeyCode.W)) UseAbility(1);
+        if (Input.GetKeyDown(KeyCode.E)) UseAbility(2);
+        if (Input.GetKeyDown(KeyCode.R)) UseAbility(3);
+    }
 
-        if (Input.GetKeyDown(KeyCode.W))
+    void UseAbility(int index)
+    {
+        if (abilitiesPrefabs[index] == null) return;
+
+        // calcula direção da habilidade
+        Vector3 mousePos = GetMouseWorldPosition();
+        Vector3 direction = (mousePos - firePoint.position).normalized;
+
+        // instancia e dispara o projétil
+        GameObject abilityGO = Instantiate(abilitiesPrefabs[index], firePoint.position, Quaternion.identity);
+        Ability ability = abilityGO.GetComponent<Ability>();
+        if (ability != null)
         {
-            PrepareTargetedAbility();
+            ability.Launch(direction);
         }
     }
 
-    void CastImmediateAbility()
+    Vector3 GetMouseWorldPosition()
     {
-        // Exemplo: Explosão em volta do player
-        GameObject ability = Instantiate(abilityPrefab, transform.position, Quaternion.identity);
-        Debug.Log("Usou habilidade imediata (Q)");
-    }
-
-    void PrepareTargetedAbility()
-    {
-        // Aqui só prepara a magia
-        Debug.Log("Habilidade engatilhada (W) - clique para lançar");
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            return hit.point;
+        }
+        return transform.position + transform.forward;
     }
 }
