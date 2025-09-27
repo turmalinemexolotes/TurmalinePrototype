@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Health : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class Health : MonoBehaviour
     public Slider healthSlider; // arraste o Slider aqui
 
     [Header("Knockback Settings")]
-    public float baseKnockbackForce = 5f; // força mínima do empurrão
+    public float baseKnockbackForce = 5f; // forï¿½a mï¿½nima do empurrï¿½o
     public float maxKnockbackMultiplier = 2f; // quanto pode aumentar com pouca vida
     private Rigidbody rb;
 
@@ -24,7 +25,7 @@ public class Health : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    // Recebe a posição do atacante
+    // Recebe a posiï¿½ï¿½o do atacante
     public void TakeDamage(float amount, Vector3 attackerPosition)
     {
         currentHealth -= amount;
@@ -35,7 +36,7 @@ public class Health : MonoBehaviour
 
         if (currentHealth > 0 && rb != null)
         {
-            // calcula proporção de vida perdida (quanto menos vida, maior o knockback)
+            // calcula proporï¿½ï¿½o de vida perdida (quanto menos vida, maior o knockback)
             float healthPercent = currentHealth / maxHealth; // 1 = cheio, 0 = morto
             float knockbackForce = baseKnockbackForce * Mathf.Lerp(1f, maxKnockbackMultiplier, 1f - healthPercent);
 
@@ -50,7 +51,7 @@ public class Health : MonoBehaviour
         }
     }
 
-    // Sobrecarga para dano que não aplica knockback
+    // Sobrecarga para dano que nï¿½o aplica knockback
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
@@ -69,5 +70,7 @@ public class Health : MonoBehaviour
     {
         Debug.Log("Explodiu!");
         Destroy(gameObject);
+        SceneManager.LoadSceneAsync("GameOver");
     }
+
 }
