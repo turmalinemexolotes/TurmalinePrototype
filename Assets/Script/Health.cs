@@ -1,0 +1,73 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Health : MonoBehaviour
+{
+    public float maxHealth = 100f;
+    public float currentHealth;
+
+    public Slider healthSlider; // arraste o Slider aqui
+
+    [Header("Knockback Settings")]
+    public float baseKnockbackForce = 5f; // força mínima do empurrão
+    public float maxKnockbackMultiplier = 2f; // quanto pode aumentar com pouca vida
+    private Rigidbody rb;
+
+    void Start()
+    {
+        currentHealth = maxHealth;
+
+        // configura o slider
+        healthSlider.maxValue = maxHealth;
+        healthSlider.value = currentHealth;
+
+        rb = GetComponent<Rigidbody>();
+    }
+
+    // Recebe a posição do atacante
+    public void TakeDamage(float amount, Vector3 attackerPosition)
+    {
+        currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        // atualiza slider
+        healthSlider.value = currentHealth;
+
+        if (currentHealth > 0 && rb != null)
+        {
+            // calcula proporção de vida perdida (quanto menos vida, maior o knockback)
+            float healthPercent = currentHealth / maxHealth; // 1 = cheio, 0 = morto
+            float knockbackForce = baseKnockbackForce * Mathf.Lerp(1f, maxKnockbackMultiplier, 1f - healthPercent);
+
+            Vector3 knockDir = (transform.position - attackerPosition).normalized;
+            knockDir.y = 0; // apenas horizontal
+            rb.AddForce(knockDir * knockbackForce, ForceMode.Impulse);
+        }
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    // Sobrecarga para dano que não aplica knockback
+    public void TakeDamage(float amount)
+    {
+        currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        // atualiza slider
+        healthSlider.value = currentHealth;
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Debug.Log("Explodiu!");
+        Destroy(gameObject);
+    }
+}
